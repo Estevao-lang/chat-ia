@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot - Conversa</title>
+</head>
+<body>
+    <h1>Converse com o Chatbot</h1>
+    <div id="chat-box">
+        <div id="messages"></div>
+    </div>
+    <input type="text" id="user-input" placeholder="Digite sua mensagem..." />
+    <button onclick="sendMessage()">Enviar</button>
+
+    <script>
+        async function sendMessage() {
+            const userInput = document.getElementById("user-input").value;
+            if (userInput.trim() === "") return;
+    
+            // Exibe a mensagem do usuário na tela
+            const messageContainer = document.getElementById("messages");
+            const userMessage = document.createElement("p");
+            userMessage.textContent = "Você: " + userInput;
+            messageContainer.appendChild(userMessage);
+    
+            try {
+                // Envia a mensagem para a API
+                const response = await fetch("/api/chat", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ input_text: userInput })
+                });
+    
+                if (!response.ok) {
+                    throw new Error('Erro na resposta da API');
+                }
+    
+                const data = await response.json();
+                const botMessage = document.createElement("p");
+                botMessage.textContent = "Bot: " + data.response;
+                messageContainer.appendChild(botMessage);
+            } catch (error) {
+                const errorMessage = document.createElement("p");
+                errorMessage.textContent = "Erro: " + error.message;
+                messageContainer.appendChild(errorMessage);
+            }
+    
+            // Limpa o campo de entrada
+            document.getElementById("user-input").value = "";
+        }
+    </script>
+    
+</body>
+</html>
